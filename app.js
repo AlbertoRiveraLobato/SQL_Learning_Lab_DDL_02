@@ -53,7 +53,7 @@ btnBorrar.onclick = function() {
     sqlInput.focus();
 };
 
-// Pegar código de ejemplo 1 en el área de texto (¡NO ejecuta!)
+// Pegar código de ejemplo 1 en el área de texto (NO ejecuta nada)
 btnEjemplo1.onclick = function() {
     sqlInput.value = 
 `CREATE TABLE alumnos (
