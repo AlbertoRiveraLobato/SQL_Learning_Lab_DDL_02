@@ -53,7 +53,7 @@ btnBorrar.onclick = function() {
     sqlInput.focus();
 };
 
-// Pegar código de ejemplo 1 en el área de texto
+// Pegar código de ejemplo 1 en el área de texto (¡NO ejecuta!)
 btnEjemplo1.onclick = function() {
     sqlInput.value = 
 `CREATE TABLE alumnos (
@@ -102,10 +102,8 @@ function drawTables() {
     }
 }
 
-// Mensajes de ayuda ampliados (igual que antes, recortado aquí para brevedad)
+// Mensajes de ayuda ampliados (puedes pegar aquí tu función getHelpMessage)
 function getHelpMessage(sql, errorMsg) {
-    // ... (copia aquí la versión pedagógica extendida que te di antes)
-    // Por motivos de espacio, puedes usar exactamente la función getHelpMessage de la respuesta anterior.
-    // O avísame si quieres que la vuelva a pegar aquí completa.
+    // ...copia aquí la versión pedagógica extendida de la función getHelpMessage...
     return "";
 }
