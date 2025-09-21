@@ -18,6 +18,21 @@ const executeBtn = document.getElementById('execute-btn');
 const clearBtn = document.getElementById('clear-btn');
 const sqlInput = document.getElementById('sql-input');
 
+
+// Permitir tabulaciones en el textarea de SQL
+sqlInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        // Insertar tabulación en la posición del cursor
+        this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+        // Colocar el cursor después de la tabulación
+        this.selectionStart = this.selectionEnd = start + 1;
+    }
+});
+
+
 // Ejecutar código SQL
 executeBtn.onclick = function() {
     if (!ready) return;
