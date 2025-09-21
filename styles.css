@@ -1,0 +1,96 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f8f8f8;
+    margin: 0;
+    padding: 0;
+}
+h1 {
+    text-align: center;
+    margin-top: 24px;
+}
+#main-container {
+    display: flex;
+    margin: 20px auto;
+    max-width: 1100px;
+    min-height: 600px;
+    border: 1px solid #bbb;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 12px #eee;
+}
+#tables-area {
+    flex: 1;
+    border-right: 1px solid #bbb;
+    padding: 24px;
+    min-width: 350px;
+    background: #e4f7fa;
+    overflow-x: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 16px;
+}
+.table-graphic {
+    min-width: 180px;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px #bdbdbd29;
+    background: #f9fbe7;
+    border: 3px solid #b2dfdb;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+.table-graphic header {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+.table-graphic ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.table-graphic li {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 3px 0;
+}
+#editor-area {
+    flex: 1;
+    padding: 24px;
+    min-width: 350px;
+    display: flex;
+    flex-direction: column;
+}
+#sql-input {
+    width: 100%;
+    min-height: 150px;
+    font-size: 16px;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    border: 1px solid #bdbdbd;
+    padding: 10px;
+    resize: vertical;
+}
+.buttons {
+    margin-bottom: 16px;
+}
+button {
+    margin-right: 8px;
+    padding: 8px 18px;
+    font-size: 15px;
+    border: none;
+    border-radius: 5px;
+    background: #4db6ac;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+button:hover {
+    background: #009688;
+}
+#output {
+    min-height: 24px;
+    margin-top: 8px;
+    font-size: 15px;
+    color: #d84315;
+}
