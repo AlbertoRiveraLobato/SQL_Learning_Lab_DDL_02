@@ -2,26 +2,53 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Práctica de DDL SQL</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- SQL.js desde CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <title>SQL Learning Lab DDL</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; }
+        #container { display: flex; min-height: 100vh; }
+        #main { flex: 2; padding: 2em; background: #f4f4f4; }
+        #sidebar {
+            flex: 1; background: #e3e3e3; padding: 2em;
+            border-left: 2px solid #ccc;
+            min-width: 300px;
+        }
+        textarea { width: 100%; min-height: 80px; font-size: 1em; }
+        button { margin-top: 10px; padding: 0.5em 1.5em; font-size: 1.1em; }
+        #output { margin-top: 1em; min-height: 2em; }
+        #tables { margin-top: 2em; }
+        table { border-collapse: collapse; margin-bottom: 1em; }
+        th, td { border: 1px solid #888; padding: 0.4em 0.8em; }
+        th { background: #f0f0f0; }
+        .table-title { margin: 1em 0 0.2em; font-weight: bold; }
+    </style>
 </head>
 <body>
-    <h1>Práctica de DDL SQL v8</h1>
-    <div id="main-container">
-        <div id="tables-area">
-            <!-- Aquí se dibujarán las tablas -->
-        </div>
-        <div id="editor-area">
-            <textarea id="sql-input" placeholder="Escribe aquí tus comandos DDL..."></textarea>
-            <div class="buttons">
-                <button id="execute-btn">Ejecutar</button>
-                <button id="clear-btn">Borrar</button>
-            </div>
+    <div id="container">
+        <div id="main">
+            <h2>Laboratorio SQL (DDL) con SQLite v9</h2>
+            <p>Escribe tus comandos SQL (DDL) y pulsa "Ejecutar". Si el comando es válido en MySQL pero no en SQLite, verás una ayuda personalizada.</p>
+            <textarea id="sqlInput" placeholder="Ejemplo: CREATE TABLE alumnos (ID_alumno INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT);"></textarea>
+            <br>
+            <button id="executeBtn">Ejecutar</button>
             <div id="output"></div>
+            <div id="tables"></div>
+        </div>
+        <div id="sidebar">
+            <h3>Acciones rápidas</h3>
+            <button id="btnEjemplo1">Crear Ejemplo 1</button>
+            <p style="font-size: 0.97em; margin-top: 1.2em;">
+                <b>Ejemplo 1:</b><br>
+                Crea las tablas <code>alumnos</code>, <code>profesores</code> y <code>materias</code> con los campos <code>ID_alumno</code>, <code>ID_profesor</code>, <code>ID_materia</code> (según tabla) y <code>nombre</code>.<br>
+                <br>
+                Usa este botón para empezar a practicar sobre una estructura básica.
+            </p>
+            <hr>
+            <p style="color:#555;">
+                <b>Consejo:</b> Si ves mensajes de ayuda, léelos con atención: te explican cómo adaptar tus comandos MySQL a SQLite.
+            </p>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
