@@ -1,37 +1,99 @@
-// Cargar SQL.js y preparar la base de datos
-let db;
-let colors = ['#b2ebf2', '#ffe082', '#c0ca33', '#f44336', '#ce93d8', '#90caf9', '#ffe0b2', '#80cbc4', '#e6ee9c', '#ffab91'];
-let tableColors = {};
-let SQL;
-let ready = false;
+let db, ready = false;
 
-window.initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}` }).then(function(SQLLib) {
-    SQL = SQLLib;
-    db = new SQL.Database();
-    ready = true;
-    drawTables();
-});
+// Carga e inicializa SQL.js
+initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}` })
+    .then(SQL => {
+        db = new SQL.Database();
+        ready = true;
+        drawTables();
+    });
 
-const tablesArea = document.getElementById('tables-area');
+// Botón ejecutar y salida
+const sqlInput = document.getElementById('sqlInput');
+const executeBtn = document.getElementById('executeBtn');
 const output = document.getElementById('output');
-const executeBtn = document.getElementById('execute-btn');
-const clearBtn = document.getElementById('clear-btn');
-const sqlInput = document.getElementById('sql-input');
+const tablesDiv = document.getElementById('tables');
+const btnEjemplo1 = document.getElementById('btnEjemplo1');
 
-// Permitir tabulaciones en el textarea de SQL
-sqlInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Tab') {
-        e.preventDefault();
-        const start = this.selectionStart;
-        const end = this.selectionEnd;
-        this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
-        this.selectionStart = this.selectionEnd = start + 1;
+// Ejecutar SQL escrito por el usuario
+executeBtn.onclick = function() {
+    if (!ready) return;
+    const sql = sqlInput.value.trim();
+    if (!sql) {
+        output.innerHTML = 'Por favor, escribe un comando SQL.';
+        output.style.color = '#d84315';
+        return;
     }
-});
+    try {
+        db.run(sql);
+        output.style.color = '#388e3c';
+        output.innerText = '¡Comando ejecutado correctamente!';
+        drawTables();
+    } catch (e) {
+        output.style.color = '#d84315';
+        let helpMsg = getHelpMessage(sql, e.message);
+        output.innerHTML = 'Error: ' + e.message + (helpMsg ? '<br><br>' + helpMsg : '');
+    }
+};
 
-// Función para analizar el error y sugerir ayuda específica ante comandos MySQL no válidos en SQLite
+// Botón para crear el Ejemplo 1
+btnEjemplo1.onclick = crearEjemplo1;
+
+function crearEjemplo1() {
+    const ejemploSQL = `
+        CREATE TABLE IF NOT EXISTS alumnos (
+            ID_alumno INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT
+        );
+        CREATE TABLE IF NOT EXISTS profesores (
+            ID_profesor INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT
+        );
+        CREATE TABLE IF NOT EXISTS materias (
+            ID_materia INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT
+        );
+    `;
+    try {
+        db.run(ejemploSQL);
+        output.style.color = '#388e3c';
+        output.innerHTML = '¡Ejemplo 1 creado! Se han creado las tablas <b>alumnos</b>, <b>profesores</b> y <b>materias</b>.';
+        drawTables();
+    } catch (e) {
+        output.style.color = '#d84315';
+        let helpMsg = getHelpMessage(ejemploSQL, e.message);
+        output.innerHTML = 'Error: ' + e.message + (helpMsg ? '<br><br>' + helpMsg : '');
+    }
+}
+
+// Dibuja las tablas y sus columnas
+function drawTables() {
+    if (!ready) return;
+    const res = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name;");
+    if (!res[0] || !res[0].values.length) {
+        tablesDiv.innerHTML = "<i>No hay tablas en la base de datos.</i>";
+        return;
+    }
+    let html = '';
+    for (let row of res[0].values) {
+        const tname = row[0];
+        const cols = db.exec(`PRAGMA table_info(${tname});`);
+        html += `<div class="table-title">${tname}</div>`;
+        html += `<table><tr><th>Nombre</th><th>Tipo</th><th>PK</th></tr>`;
+        for (let col of cols[0].values) {
+            html += `<tr>
+                <td>${col[1]}</td>
+                <td>${col[2]}</td>
+                <td>${col[5] ? '✅' : ''}</td>
+            </tr>`;
+        }
+        html += `</table>`;
+    }
+    tablesDiv.innerHTML = html;
+}
+
+// Función de ayuda pedagógica ampliada
 function getHelpMessage(sql, errorMsg) {
-    // 1. CREATE DATABASE / DROP DATABASE
     if (/^\s*create\s+database/i.test(sql)) {
         return `
             <b>Ayuda pedagógica:</b><br>
@@ -52,7 +114,6 @@ function getHelpMessage(sql, errorMsg) {
             <code>DROP TABLE IF EXISTS alumnos;</code>
         `;
     }
-    // 2. USE database
     if (/^\s*use\s+\w+/i.test(sql)) {
         return `
             <b>Ayuda pedagógica:</b><br>
@@ -61,7 +122,6 @@ function getHelpMessage(sql, errorMsg) {
             <b>¿Qué hacer?</b> Simplemente elimina este comando y sigue trabajando con las tablas.
         `;
     }
-    // 3. ENGINE=, CHARSET=, COLLATE=
     if (/engine\s*=/i.test(sql)) {
         return `
             <b>Ayuda pedagógica:</b><br>
@@ -80,7 +140,6 @@ function getHelpMessage(sql, errorMsg) {
             <b>¿Qué hacer?</b> Elimina estas opciones de tu SQL.
         `;
     }
-    // 4. AUTO_INCREMENT
     if (/auto_increment/i.test(sql)) {
         return `
             <b>Ayuda pedagógica:</b><br>
@@ -92,7 +151,6 @@ function getHelpMessage(sql, errorMsg) {
             <b>Ejemplo SQLite:</b> <code>id INTEGER PRIMARY KEY AUTOINCREMENT</code>
         `;
     }
-    // 5. UNSIGNED
     if (/unsigned/i.test(sql)) {
         return `
             <b>Ayuda pedagógica:</b><br>
@@ -101,7 +159,6 @@ function getHelpMessage(sql, errorMsg) {
             <b>¿Qué hacer?</b> Elimina <code>UNSIGNED</code> de tu definición.
         `;
     }
-    // 6. DROP COLUMN o MODIFY/CHANGE COLUMN en ALTER TABLE
     if (/alter\s+table\s+\w+\s+drop\s+column/i.test(sql)) {
         return `
             <b>Ayuda pedagógica:</b><br>
@@ -130,7 +187,6 @@ function getHelpMessage(sql, errorMsg) {
             <b>¿Qué hacer?</b> En SQLite, el proceso es el mismo que para borrar o modificar una columna: crear una nueva tabla, copiar datos, borrar la original y renombrar.
         `;
     }
-    // 7. ALTER TABLE ADD PRIMARY KEY o ADD CONSTRAINT
     if (/alter\s+table\s+\w+\s+add\s+primary\s+key/i.test(sql)) {
         return `
             <b>Ayuda pedagógica:</b><br>
@@ -147,7 +203,6 @@ function getHelpMessage(sql, errorMsg) {
             <b>¿Qué hacer?</b> Si necesitas añadir una restricción nueva, crea una tabla nueva con la restricción y traspasa los datos.
         `;
     }
-    // 8. FOREIGN KEY (ALTER TABLE)
     if (/alter\s+table\s+\w+\s+add\s+foreign\s+key/i.test(sql)) {
         return `
             <b>Ayuda pedagógica:</b><br>
@@ -155,7 +210,6 @@ function getHelpMessage(sql, errorMsg) {
             <b>¿Qué hacer?</b> Si necesitas una clave foránea, debes definirla en el <code>CREATE TABLE</code> original.
         `;
     }
-    // 9. DROP INDEX ON
     if (/drop\s+index/i.test(sql) && /on\s+\w+/i.test(sql)) {
         return `
             <b>Ayuda pedagógica:</b><br>
@@ -164,7 +218,6 @@ function getHelpMessage(sql, errorMsg) {
             <b>Ejemplo SQLite:</b> <code>DROP INDEX nombre_del_indice;</code>
         `;
     }
-    // 10. Tipos de datos específicos de MySQL
     if (/\b(enum|set|mediumint|tinyint|double|real|float|decimal|datetime|year|timestamp|tinytext|mediumtext|longtext|tinyblob|mediumblob|longblob)\b/i.test(sql)) {
         return `
             <b>Ayuda pedagógica:</b><br>
@@ -174,7 +227,6 @@ function getHelpMessage(sql, errorMsg) {
             <b>Ejemplo:</b> <code>nombre TEXT</code>, <code>cantidad INTEGER</code>, <code>fecha NUMERIC</code>.
         `;
     }
-    // 11. IF EXISTS/IF NOT EXISTS en ALTER TABLE
     if (/alter\s+table\s+(if\s+(not\s+)?exists)/i.test(sql)) {
         return `
             <b>Ayuda pedagógica:</b><br>
@@ -183,73 +235,5 @@ function getHelpMessage(sql, errorMsg) {
             <b>¿Qué hacer?</b> Elimina <code>IF EXISTS</code> de tus sentencias <code>ALTER TABLE</code>.
         `;
     }
-    // Puedes seguir ampliando esta función según observes otros errores en clase.
-
     return "";
-}
-
-// Ejecutar código SQL
-executeBtn.onclick = function() {
-    if (!ready) return;
-    const sql = sqlInput.value.trim();
-    if (!sql) {
-        output.innerHTML = 'Por favor, escribe un comando SQL.';
-        output.style.color = '#d84315';
-        return;
-    }
-    try {
-        db.run(sql);
-        output.style.color = '#388e3c';
-        output.innerText = '¡Comando ejecutado correctamente!';
-        drawTables();
-    } catch (e) {
-        output.style.color = '#d84315';
-        let helpMsg = getHelpMessage(sql, e.message);
-        output.innerHTML = 'Error: ' + e.message + (helpMsg ? '<br><br>' + helpMsg : '');
-    }
-};
-
-// Limpiar cuadro
-clearBtn.onclick = function() {
-    sqlInput.value = '';
-    output.innerText = '';
-};
-
-// Dibujar todas las tablas existentes
-function drawTables() {
-    tablesArea.innerHTML = '';
-    if (!ready) return;
-    // Obtener nombres de las tablas
-    let res = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
-    if (!res[0]) return;
-    let tableNames = res[0].values.map(row => row[0]);
-    tableNames.forEach((table, idx) => {
-        if (!tableColors[table]) tableColors[table] = colors[idx % colors.length];
-        let tableDiv = document.createElement('div');
-        tableDiv.className = 'table-graphic';
-        tableDiv.style.background = tableColors[table];
-
-        // Cabecera con nombre de tabla
-        let header = document.createElement('header');
-        header.innerText = table;
-        tableDiv.appendChild(header);
-
-        // Obtener info de columnas
-        let columnsRes = db.exec(`PRAGMA table_info(${table});`);
-        let ul = document.createElement('ul');
-        if (columnsRes[0]) {
-            columnsRes[0].values.forEach(col => {
-                let li = document.createElement('li');
-                // col: [cid, name, type, notnull, dflt_value, pk]
-                let attr = `${col[1]} (${col[2]})`;
-                if (col[3]) attr += ' NOT NULL';
-                if (col[5]) attr += ' PK';
-                if (col[4] !== null) attr += ` DEFAULT ${col[4]}`;
-                li.innerText = attr;
-                ul.appendChild(li);
-            });
-        }
-        tableDiv.appendChild(ul);
-        tablesArea.appendChild(tableDiv);
-    });
 }
