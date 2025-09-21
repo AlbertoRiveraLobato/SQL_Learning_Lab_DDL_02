@@ -2,50 +2,181 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>SQL Learning Lab DDL</title>
+    <title>SQL Learning Lab DDL v9</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; }
-        #container { display: flex; min-height: 100vh; }
-        #main { flex: 2; padding: 2em; background: #f4f4f4; }
-        #sidebar {
-            flex: 1; background: #e3e3e3; padding: 2em;
-            border-left: 2px solid #ccc;
-            min-width: 300px;
+        body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fa; }
+        #mainTitle {
+            width: 100vw;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            text-align: center;
+            font-size: 2.1em;
+            font-weight: bold;
+            margin: 0;
+            padding: 0.75em 0 0.4em 0;
+            letter-spacing: 1.3px;
+            color: #1976d2;
+            background: #f8fafc;
+            border-bottom: 2px solid #cfd8dc;
+            box-shadow: 0 4px 24px #b6c8e830;
+            text-shadow: 0 2px 8px #b6c8e855;
         }
-        textarea { width: 100%; min-height: 80px; font-size: 1em; }
-        button { margin-top: 10px; padding: 0.5em 1.5em; font-size: 1.1em; }
-        #output { margin-top: 1em; min-height: 2em; }
-        #tables { margin-top: 2em; }
-        table { border-collapse: collapse; margin-bottom: 1em; }
-        th, td { border: 1px solid #888; padding: 0.4em 0.8em; }
-        th { background: #f0f0f0; }
-        .table-title { margin: 1em 0 0.2em; font-weight: bold; }
+        #versionTag {
+            display: inline-block;
+            margin-left: 1em;
+            font-size: 0.7em;
+            vertical-align: middle;
+            background: #1976d2;
+            color: #fff;
+            border-radius: 12px;
+            padding: 0.2em 1em;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            box-shadow: 0 1px 7px #b0bec580;
+        }
+        #container { display: flex; min-height: 100vh; padding-top: 4.5em; }
+        #left {
+            flex: 1.2;
+            background: #f8fafc;
+            padding: 2em 1.2em 2em 2.5em;
+            border-right: 2px solid #cfd8dc;
+            min-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            overflow-y: auto;
+        }
+        #right {
+            flex: 1;
+            background: #e3e3e3;
+            padding: 2.5em 2em;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .table-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2em 2.5em;
+            margin-top: 1em;
+        }
+        .table-card {
+            min-width: 210px;
+            min-height: 110px;
+            border-radius: 16px;
+            box-shadow: 0 3px 14px #bbc7ce9c;
+            padding: 1.2em 1.1em 1em 1.1em;
+            margin-bottom: 10px;
+            color: #fff;
+            font-size: 1em;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-color-0 { background: linear-gradient(135deg, #00bcd4 85%, #0097a7 100%); }
+        .card-color-1 { background: linear-gradient(135deg, #7e57c2 85%, #512da8 100%); }
+        .card-color-2 { background: linear-gradient(135deg, #ef6c00 85%, #d84315 100%); }
+        .table-title {
+            font-weight: bold;
+            font-size: 1.13em;
+            margin-bottom: 0.5em;
+            letter-spacing: 0.5px;
+        }
+        .fields-list {
+            margin: 0 0 0 0.2em;
+            padding: 0;
+            list-style: none;
+        }
+        .fields-list li {
+            margin-bottom: 0.21em;
+            font-family: 'Fira Mono', 'Consolas', monospace;
+            font-size: 0.99em;
+            letter-spacing: .1px;
+        }
+        .pk-mark {
+            background: #fff8;
+            color: #344;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.85em;
+            padding: 0 .35em;
+            margin-left: 0.2em;
+        }
+        #sqlInput {
+            width: 100%;
+            min-height: 100px;
+            font-size: 1.1em;
+            font-family: 'Fira Mono', 'Consolas', monospace;
+            border-radius: 7px;
+            border: 1.5px solid #b0bec5;
+            margin-bottom: 0.7em;
+            padding: 0.8em;
+            background: #f9fafb;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #sqlInput:focus { border-color: #42a5f5; }
+        .button-row {
+            display: flex;
+            gap: 1em;
+            margin-bottom: 1em;
+        }
+        button {
+            padding: 0.62em 1.6em;
+            font-size: 1.07em;
+            border: none;
+            border-radius: 7px;
+            background: #1976d2;
+            color: #fff;
+            font-weight: 500;
+            margin-right: 0.3em;
+            box-shadow: 0 2px 5px #b0bec550;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background: #1565c0; }
+        #btnBorrar { background: #757575; }
+        #btnBorrar:hover { background: #424242; }
+        #btnEjemplo1 { background: #ff9100; color: #333; }
+        #btnEjemplo1:hover { background: #ff6d00; color: #fff; }
+        #output {
+            margin: 0.7em 0 0.5em 0;
+            min-height: 2em;
+            font-family: Arial, sans-serif;
+        }
+        @media (max-width: 900px) {
+            #container { flex-direction: column; padding-top: 5.5em; }
+            #mainTitle { font-size: 1.3em; padding: 0.7em 0 0.3em 0; }
+            #left, #right { min-width: 0; width: 100%; padding-left: 1.5em; padding-right: 1.5em; }
+            .table-cards { justify-content: center; }
+        }
     </style>
 </head>
 <body>
+    <div id="mainTitle">
+        SQL Learning Lab DDL
+        <span id="versionTag">v9</span>
+    </div>
     <div id="container">
-        <div id="main">
-            <h2>Laboratorio SQL (DDL) con SQLite v9</h2>
-            <p>Escribe tus comandos SQL (DDL) y pulsa "Ejecutar". Si el comando es válido en MySQL pero no en SQLite, verás una ayuda personalizada.</p>
-            <textarea id="sqlInput" placeholder="Ejemplo: CREATE TABLE alumnos (ID_alumno INTEGER PRIMARY KEY AUTOINCREMENT, nombre TEXT);"></textarea>
-            <br>
-            <button id="executeBtn">Ejecutar</button>
-            <div id="output"></div>
-            <div id="tables"></div>
+        <div id="left">
+            <h2 style="margin-bottom:0">Tablas en la base de datos</h2>
+            <div class="table-cards" id="tableCards"></div>
         </div>
-        <div id="sidebar">
-            <h3>Acciones rápidas</h3>
-            <button id="btnEjemplo1">Crear Ejemplo 1</button>
-            <p style="font-size: 0.97em; margin-top: 1.2em;">
-                <b>Ejemplo 1:</b><br>
-                Crea las tablas <code>alumnos</code>, <code>profesores</code> y <code>materias</code> con los campos <code>ID_alumno</code>, <code>ID_profesor</code>, <code>ID_materia</code> (según tabla) y <code>nombre</code>.<br>
-                <br>
-                Usa este botón para empezar a practicar sobre una estructura básica.
-            </p>
-            <hr>
-            <p style="color:#555;">
-                <b>Consejo:</b> Si ves mensajes de ayuda, léelos con atención: te explican cómo adaptar tus comandos MySQL a SQLite.
-            </p>
+        <div id="right">
+            <textarea id="sqlInput" spellcheck="false" placeholder="Escribe aquí tu código SQL"></textarea>
+            <div class="button-row">
+                <button id="btnEjecutar">Ejecutar</button>
+                <button id="btnBorrar">Borrar</button>
+                <button id="btnEjemplo1">Ejemplo 1</button>
+            </div>
+            <div id="output"></div>
+            <div style="margin-top:1.2em; color:#333; font-size:0.98em;">
+                <b>Consejo:</b> Puedes usar el tabulador para sangrías en el código.<br>
+                Pulsa <b>Ejemplo 1</b> para pegar una estructura básica de tablas.
+            </div>
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
